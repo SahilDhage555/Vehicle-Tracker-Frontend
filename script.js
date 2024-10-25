@@ -30,7 +30,7 @@ function initMap() {
 
 // Fetch vehicle movement data from the backend
 function fetchVehicleData() {
-  fetch("https://vehicle-tracker-backend.vercel.app/")
+  fetch("http://localhost:3000/api/vehicle")
     .then((response) => response.json())
     .then((data) => {
       // Map the data to route coordinates
