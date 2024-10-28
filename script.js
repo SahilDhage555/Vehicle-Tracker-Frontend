@@ -124,28 +124,32 @@
 let map;
 let vehicleMarker;
 let routeCoordinates = [];
-let animationSpeed = 30;
-let stopDelay = 500;
-let currentIndex = 0;
-let vehiclePath = [];
+let animationSpeed = 30; // Speed of movement (higher = slower)
+let stopDelay = 500; // Stop for 0.5 seconds (500 milliseconds)
+let currentIndex = 0; // Index to track the vehicle's current position on the route
+let vehiclePath = []; // Array to store the path of the vehicle for a trailing effect
 
 // Function to fetch the Google Maps API key from the backend
 async function fetchApiKey() {
   try {
     const response = await fetch("https://vehicle-tracker-backend.vercel.app/api/key");
+    if (!response.ok) {
+      throw new Error("Failed to fetch API key: " + response.statusText);
+    }
     const data = await response.json();
     return data.apiKey;
   } catch (error) {
     console.error("Error fetching API key:", error);
+    return null; // Return null if there's an error
   }
 }
 
-// Initialize the map by dynamically loading Google Maps script
+// Initialize the map by dynamically loading the Google Maps script
 async function initMap() {
   const apiKey = await fetchApiKey();
   if (!apiKey) {
     console.error("API key not found!");
-    return;
+    return; // Exit if the API key cannot be fetched
   }
 
   const script = document.createElement("script");
@@ -170,13 +174,18 @@ function loadMap() {
     },
   });
 
-  fetchVehicleData();
+  fetchVehicleData(); // Fetch vehicle data after the map has loaded
 }
 
 // Fetch vehicle movement data from the backend
 function fetchVehicleData() {
   fetch("https://vehicle-tracker-backend.vercel.app/api/vehicle")
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to fetch vehicle data: " + response.statusText);
+      }
+      return response.json();
+    })
     .then((data) => {
       routeCoordinates = data.map((location) => ({
         lat: location.latitude,
@@ -218,10 +227,10 @@ function animateVehicle() {
   if (currentIndex < routeCoordinates.length - 1) {
     const start = routeCoordinates[currentIndex];
     const end = routeCoordinates[currentIndex + 1];
-    let stepCount = 100;
+    let stepCount = 100; // Number of steps between two points
     let step = 0;
-    let deltaLat = (end.lat - start.lat) / stepCount;
-    let deltaLng = (end.lng - start.lng) / stepCount;
+    let deltaLat = (end.lat - start.lat) / stepCount; // Latitude step increment
+    let deltaLng = (end.lng - start.lng) / stepCount; // Longitude step increment
 
     let interval = setInterval(() => {
       step++;
@@ -232,6 +241,7 @@ function animateVehicle() {
       vehicleMarker.setPosition(nextPosition);
       map.panTo(nextPosition);
 
+      // Update vehicle path for a trailing effect
       vehiclePath.push(nextPosition);
       new google.maps.Polyline({
         path: vehiclePath,
@@ -246,7 +256,7 @@ function animateVehicle() {
         clearInterval(interval);
         currentIndex++;
         setTimeout(() => {
-          animateVehicle();
+          animateVehicle(); // Move to the next point after the stop delay
         }, stopDelay);
       }
     }, animationSpeed);
