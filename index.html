@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,6 +12,18 @@
     <!-- Page title -->
     <h1>Vehicle Tracker 🚗</h1>
 
+    <!-- Date display and control buttons section -->
+    <div id="bottom-section">
+      <div id="date-section"></div>
+      <div id="control-buttons">
+        <button id="startBtn">Start</button>
+        <button id="stopBtn">Stop</button>
+      </div>
+      <div class="date">
+        <input type="date">
+      </div>
+    </div>
+
     <!-- Div container for Google Map -->
     <div id="map"></div>
 
@@ -23,5 +36,23 @@
       defer
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWGHp3sQvliGkaCnJ2DwOYICtULjMzNPA&callback=initMap"
     ></script>
+
+    <script>
+      // Display the current date and time
+      function updateDateTime() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        document.getElementById("currentDate").innerText = "Date and Time: " + now.toLocaleString('en-US', options);
+      }
+      setInterval(updateDateTime, 1000); // Update every second
+
+      // Handling Start and Stop Buttons
+      document.getElementById("startBtn").addEventListener("click", () => {
+        startAnimation();
+      });
+      document.getElementById("stopBtn").addEventListener("click", () => {
+        stopAnimation();
+      });
+    </script>
   </body>
 </html>
